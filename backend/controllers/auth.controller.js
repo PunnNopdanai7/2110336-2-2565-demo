@@ -6,6 +6,7 @@ const User = require("../models/user.model");
  * @access   Public
  */
 exports.register = async (req, res, _next) => {
+  console.log("Register user");
   try {
     const { username, password } = req.body;
 
@@ -42,6 +43,7 @@ exports.register = async (req, res, _next) => {
  * @access   Public
  */
 exports.login = async (req, res, _next) => {
+  console.log("Login user");
   try {
     const { username, password } = req.body;
 

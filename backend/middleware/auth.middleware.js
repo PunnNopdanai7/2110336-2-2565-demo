@@ -9,7 +9,6 @@ exports.protect = async (req, res, next) => {
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
-    console.log("req.headers.authorization: ", req.headers.authorization);
     token = req.headers.authorization.split(" ")[1];
   }
 
@@ -25,6 +24,10 @@ exports.protect = async (req, res, next) => {
     const decoded = jsw.verify(token, process.env.JWT_SECRET);
 
     req.user = await User.findById(decoded.id);
+
+    console.log(
+      `User ${req.user.username} is authorized to access this routes`
+    );
     next();
   } catch (error) {
     console.log(error);
