@@ -2,6 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./db");
+const cookieParser = require("cookie-parser");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const reteLimit = require("express-rate-limit");
+const xss = require("xss-clean");
+const hpp = require("hpp");
 
 // Import route files
 const tasks = require("./routes/task.route");
@@ -23,6 +29,19 @@ app.use(express.urlencoded({ extended: true }));
 
 // Enable CORS
 app.use(cors());
+
+// Enhance security
+app.use(cookieParser());
+app.use(mongoSanitize());
+app.use(helmet());
+app.use(
+  reteLimit({
+    windowwsMS: 10 * 60 * 1000, //10 mins converts to ms
+    max: 100,
+  })
+);
+app.use(xss());
+app.use(hpp());
 
 // Mount routers
 app.use("/api/v1/tasks", tasks);
