@@ -14,6 +14,14 @@ exports.getTasks = async (req, res, _next) => {
     });
   } catch (error) {
     console.log(error);
+
+    if (error?.message) {
+      return res.status(404).json({
+        success: false,
+        error: error.message,
+      });
+    }
+
     return res.status(500).json({
       success: false,
       error: "Server Error",
@@ -31,7 +39,7 @@ exports.getTask = async (req, res, _next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: "No task found",
+        error: `Task with id ${req.params.id} not found`,
       });
     }
 
@@ -41,6 +49,14 @@ exports.getTask = async (req, res, _next) => {
     });
   } catch (error) {
     console.log(error);
+
+    if (error?.message) {
+      return res.status(404).json({
+        success: false,
+        error: error.message,
+      });
+    }
+
     return res.status(500).json({
       success: false,
       error: "Server Error",
@@ -53,7 +69,19 @@ exports.getTask = async (req, res, _next) => {
 //@access   Private
 exports.createTask = async (req, res, next) => {
   try {
-    const task = await Task.create(req.body);
+    const { title, description } = req.body;
+
+    if (!title || !description) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide title and description",
+      });
+    }
+
+    const task = await Task.create({
+      title,
+      description,
+    });
 
     return res.status(201).json({
       success: true,
@@ -68,19 +96,70 @@ exports.createTask = async (req, res, next) => {
         success: false,
         error: messages,
       });
-    } else {
-      return res.status(500).json({
+    } else if (error?.message) {
+      return res.status(404).json({
         success: false,
-        error: "Server Error",
+        error: error.message,
       });
     }
+
+    return res.status(500).json({
+      success: false,
+      error: "Server Error",
+    });
   }
 };
 
 //@desc     Update task
 //@route    Put /api/v1/tasks/:id
 //@access   Private
-exports.updateTask = async (req, res, _next) => {};
+exports.updateTask = async (req, res, _next) => {
+  const { title, description, completed } = req.body;
+  const { id } = req.params;
+
+  try {
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        error: `Task with id ${req.params.id} not found`,
+      });
+    } else if (!title || !description || !completed) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide title, description and completed",
+      });
+    }
+
+    const body = {
+      title,
+      description,
+      completed,
+      createdAt: task.createdAt,
+    };
+
+    const updatedTask = await Task.findByIdAndUpdate(id, body);
+    return res.status(200).json({
+      success: true,
+      data: updatedTask,
+    });
+  } catch (error) {
+    console.log(error);
+
+    if (error?.message) {
+      return res.status(404).json({
+        success: false,
+        error: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: "Server Error",
+    });
+  }
+};
 
 //@desc     Delete task
 //@route    Delete /api/v1/tasks/:id
@@ -92,7 +171,7 @@ exports.deleteTask = async (req, res, _next) => {
     if (!task) {
       return res.status(404).json({
         success: false,
-        error: "No task found",
+        error: `Task with id ${req.params.id} not found`,
       });
     }
 
@@ -104,6 +183,14 @@ exports.deleteTask = async (req, res, _next) => {
     });
   } catch (error) {
     console.log(error);
+
+    if (error?.message) {
+      return res.status(404).json({
+        success: false,
+        error: error.message,
+      });
+    }
+
     return res.status(500).json({
       success: false,
       error: "Server Error",
