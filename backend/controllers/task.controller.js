@@ -6,7 +6,9 @@ const Task = require("../models/task.model");
 exports.getTasks = async (_req, res, _next) => {
   console.log("Get all tasks");
   try {
-    const tasks = await Task.find();
+    const tasks = await Task.find({
+      createBy: req.user.id,
+    });
 
     return res.status(200).json({
       success: true,
