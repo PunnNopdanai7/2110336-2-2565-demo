@@ -71,9 +71,24 @@ exports.login = async (req, res, _next) => {
         error: "Invalid credentials",
       });
     }
-
-    return res
-      .status(200)
-      .json({ success: true, accessToken: user.signedJwtToken() });
+    sendTokenResponse(user, 200, res);
   } catch (error) {}
+};
+
+const sendTokenResponse = (user, statusCode, res) => {
+  const token = user.signedJwtToken();
+
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+  };
+  if (process.env.NODE_ENV === "production") {
+    options.secure = true;
+  }
+
+  res.status(statusCode).cookie("token", token, options).json({
+    success: true,
+    token,
+  });
 };

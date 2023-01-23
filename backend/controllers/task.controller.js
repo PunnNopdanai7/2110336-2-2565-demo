@@ -3,7 +3,7 @@ const Task = require("../models/task.model");
 //@desc     Get All task
 //@route    Get /api/v1/tasks
 //@access   Private
-exports.getTasks = async (_req, res, _next) => {
+exports.getTasks = async (req, res, _next) => {
   console.log("Get all tasks");
   try {
     const tasks = await Task.find({
